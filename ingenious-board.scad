@@ -197,7 +197,6 @@ module board() {
 }
 
 module segment_key(rot, pos, mirror=false) {
-    rot = rot + 45;
     rotate([0,0,rot])
     translate([0,-segment_key_radius/2 + pos,0])
     mirror([mirror?1:0,0,0])
@@ -211,7 +210,6 @@ module segment_key(rot, pos, mirror=false) {
 }
 
 module segment_socket(rot, pos, mirror=false) {
-    rot = rot + 45;
     rotate([0,0,rot])
     translate([0,-segment_key_radius/2 + pos,0])
     mirror([mirror?1:0,0,0])
@@ -233,10 +231,10 @@ module ne_board() {
                 cube(300);
             }
         
-            segment_socket(0, 55);
-            segment_socket(0, 155);
-            segment_socket(-90, 50, true);
-            segment_socket(-90, 150, true);
+            segment_socket(45, 55);
+            segment_socket(45, 155);
+            segment_socket(-45, 50, true);
+            segment_socket(-45, 150, true);
         }
     }
 }
@@ -252,10 +250,10 @@ module se_board() {
             }
         }
                 
-        segment_key(-90, 50, true);
-        segment_key(-90, 150, true);
-        segment_key(180, 45);
-        segment_key(180, 145);
+        segment_key(-45, 50, true);
+        segment_key(-45, 150, true);
+        segment_key(225, 45);
+        segment_key(225, 145);
     }
 }
 
@@ -269,10 +267,10 @@ module sw_board() {
                 cube(300);
             }
         
-            segment_socket(180, 45);
-            segment_socket(180, 145);
-            segment_socket(90, 40, true);
-            segment_socket(90, 140, true);
+            segment_socket(225, 45);
+            segment_socket(225, 145);
+            segment_socket(135, 40, true);
+            segment_socket(135, 140, true);
         }
     }
 }
@@ -292,6 +290,35 @@ module nw_board() {
         segment_key(90, 140, true);
         segment_key(0, 55);
         segment_key(0, 155);
+    }
+}
+
+module segment4_board(off=0, show=[1:4]) {
+    for (segment = show) {
+        union() {
+            difference() {
+                intersection() {
+                    board();
+                    rotate([0,0,off+segment*90])
+                    translate([segment_clearance,segment_clearance,0])
+                    cube(board_radius*2);
+                }
+                
+                if (segment % 2 == 1) {
+                    segment_socket(off+segment*90, 50 + (segment-1)*5);
+                    segment_socket(off+segment*90, 150);
+                    segment_socket(off+(segment-1)*90, 50, true);
+                    segment_socket(off+(segment-1)*90, 150, true);
+                }
+            }
+            
+            if (segment % 2 == 0) {
+                segment_key(off+segment*90, 50, true);
+                segment_key(off+segment*90, 150, true);
+                #segment_key(off+(segment-1)*90, 50+(segment-2)*5);
+                segment_key(off+(segment-1)*90, 150);
+            }
+        }
     }
 }
 
@@ -323,7 +350,8 @@ module test_print3() {
 //test_print2();
 //test_print3();
 //board();
-ne_board();
-se_board();
-sw_board();
-nw_board();
+//ne_board();
+//se_board();
+//sw_board();
+//nw_board();
+segment4_board(20, [2]);
