@@ -293,30 +293,36 @@ module nw_board() {
     }
 }
 
-module segment4_board(off=0, show=[1:4]) {
+module segmentn_board(segments=4, off=0, show=[1:4]) {
+    rotate_by = 360 / segments;
     for (segment = show) {
         union() {
             difference() {
                 intersection() {
                     board();
-                    rotate([0,0,off+segment*90])
+                    rotate([0,0,off+segment*rotate_by])
                     translate([segment_clearance,segment_clearance,0])
-                    cube(board_radius*2);
+                    linear_extrude(board_radius*2)
+                    polygon([
+                        [0,0],
+                        [0,board_radius*2],
+                        [sin(rotate_by)*board_radius*2,cos(rotate_by)*board_radius*2]
+                    ]);
                 }
                 
                 if (segment % 2 == 1) {
-                    segment_socket(off+segment*90, 50 + (segment-1)*5);
-                    segment_socket(off+segment*90, 150);
-                    segment_socket(off+(segment-1)*90, 50, true);
-                    segment_socket(off+(segment-1)*90, 150, true);
+                    segment_socket(off+segment*rotate_by, 50 + (segment-1)*5);
+                    segment_socket(off+segment*rotate_by, 150);
+                    segment_socket(off+(segment-1)*rotate_by, 50, true);
+                    segment_socket(off+(segment-1)*rotate_by, 150, true);
                 }
             }
             
             if (segment % 2 == 0) {
-                segment_key(off+segment*90, 50, true);
-                segment_key(off+segment*90, 150, true);
-                #segment_key(off+(segment-1)*90, 50+(segment-2)*5);
-                segment_key(off+(segment-1)*90, 150);
+                segment_key(off+segment*rotate_by, 50, true);
+                segment_key(off+segment*rotate_by, 150, true);
+                segment_key(off+(segment-1)*rotate_by, 50+(segment-2)*5);
+                segment_key(off+(segment-1)*rotate_by, 150);
             }
         }
     }
@@ -354,4 +360,4 @@ module test_print3() {
 //se_board();
 //sw_board();
 //nw_board();
-segment4_board(20, [2]);
+segmentn_board(6, 0, [1:6]);
